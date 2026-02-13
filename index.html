@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>自律空间 Pro</title>
+    <style>
+        /* 极致通透 CSS */
+        body {
+            margin: 0; min-height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 25%, #a1c4fd 70%, #c2e9fb 100%);
+            background-size: 400% 400%;
+            animation: aurora 15s ease infinite alternate;
+            font-family: -apple-system, sans-serif;
+            display: flex; justify-content: center; align-items: center; overflow-x: hidden;
+        }
+        @keyframes aurora { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        .corner-img { position: fixed; width: 62px; height: 62px; z-index: 100; border-radius: 15px; border: 1px solid rgba(255,255,255,0.4); }
+        .top-left { top: 25px; left: 25px; } .top-right { top: 25px; right: 25px; }
+        .bottom-left { bottom: 25px; left: 25px; } .bottom-right { bottom: 25px; right: 25px; }
+        .app-container { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .ios-card {
+            width: 100%; background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(65px) saturate(230%) brightness(105%);
+            -webkit-backdrop-filter: blur(65px) saturate(230%) brightness(105%);
+            border-radius: 40px; padding: 30px; margin-bottom: 25px;
+            border: 0.8px solid rgba(255, 255, 255, 0.5);
+            text-align: center; box-sizing: border-box;
+        }
+        .tag { font-size: 0.75rem; font-weight: 800; color: rgba(0,0,0,0.3); letter-spacing: 2px; }
+        .timer { font-size: 5rem; font-weight: 800; color: #1d1d1f; letter-spacing: -4px; margin: 10px 0; }
+        .main-text { font-size: 1.4rem; font-weight: 700; color: #1d1d1f; }
+        .main-text b { color: #007AFF; font-size: 1.9rem; }
+        .btn-row { display: flex; gap: 12px; margin-top: 15px; justify-content: center; }
+        button { border: none; padding: 15px 32px; border-radius: 22px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .primary { background: #007AFF; color: white; }
+        .secondary { background: rgba(0,0,0,0.06); color: #1d1d1f; }
+        input { width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 16px; background: rgba(0,0,0,0.06); box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <img src="1.png" class="corner-img top-left">
+    <img src="2.png" class="corner-img top-right">
+    <img src="3.png" class="corner-img bottom-left">
+    <img src="4.png" class="corner-img bottom-right">
+
+    <div class="app-container">
+        <div class="ios-card">
+            <div class="tag">FOCUS</div>
+            <div class="timer" id="timer">25:00</div>
+            <div class="btn-row">
+                <button onclick="toggleTimer()" id="startBtn" class="primary">开始专注</button>
+                <button onclick="resetTimer()" class="secondary">重置</button>
+            </div>
+        </div>
+
+        <div class="ios-card">
+            <div class="tag">COUNTDOWN</div>
+            <div id="gaokao" class="main-text">同步时光...</div>
+        </div>
+
+        <div class="ios-card">
+            <div class="tag">MILESTONE</div>
+            <input type="text" id="evName" placeholder="目标名称">
+            <input type="date" id="evDate">
+            <button onclick="saveEvent()" class="primary" style="width:100%; margin-top:10px;">锁定目标</button>
+            <div id="customCountdown" class="main-text" style="margin-top:15px; font-size:1.1rem;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 极致修正版 JS
+        function startGK() {
+            const gkBox = document.getElementById('gaokao');
+            const target = new Date('2026-06-07T09:00:00').getTime();
+            setInterval(() => {
+                const diff = target - new Date().getTime();
+                const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+                gkBox.innerHTML = `还剩 <b>${d}</b>天 <b>${h}:${m}:${s}</b>`;
+            }, 1000);
+        }
+
+        let tl = 1500, tid = null;
+        function toggleTimer() {
+            const btn = document.getElementById('startBtn');
+            if(tid) { clearInterval(tid); tid=null; btn.innerText="继续"; }
+            else { tid=setInterval(()=>{ if(tl>0){tl--; render();}else{alert("时间到"); resetTimer();} }, 1000); btn.innerText="暂停"; }
+        }
+        function render() { const m=Math.floor(tl/60), s=tl%60; document.getElementById('timer').innerText=`${m}:${s<10?'0'+s:s}`; }
+        function resetTimer() { clearInterval(tid); tid=null; tl=1500; render(); document.getElementById('startBtn').innerText="开始专注"; }
+
+        function saveEvent() {
+            const n = document.getElementById('evName').value, d = document.getElementById('evDate').value;
+            if(n && d) { localStorage.setItem('ms_n', n); localStorage.setItem('ms_d', d); showE(); }
+        }
+        function showE() {
+            const n = localStorage.getItem('ms_n'), d = localStorage.getItem('ms_d'), box = document.getElementById('customCountdown');
+            if(n && d && box) {
+                const diff = Math.ceil((new Date(d) - new Date())/86400000);
+                box.innerHTML = `${n} 还有 <b>${diff}</b> 天`;
+            }
+        }
+        window.onload = () => { startGK(); showE(); };
+    </script>
+</body>
+</html>
